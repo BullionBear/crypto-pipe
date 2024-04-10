@@ -23,11 +23,14 @@ class TaskManager:
         return wrapped
 
     @atomic
-    def create_task(self, task_name: str, **kwargs):
+    def create_task(self, task_name: str, depends_on: list[str], **kwargs):
         trigger_dt = datetime.now(UTC)
         task_id = f"{task_name}-{trigger_dt.isoformat()}-{self._task_id}"
-        t = Task(task_id=task_id, task_name=task_name, args=kwargs, start_time=time.time(), end_time=-1, status="Pending", )
+        t = Task(task_id=task_id, task_name=task_name, args=kwargs, start_time=time.time(), end_time=-1, depends_on=depends_on, status="Pending")
         self.tasks.loc[t.task_id] = dict(t)
+
+
+
 
 
 
