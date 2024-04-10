@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.core.security import verify_user, create_access_token, update_token, get_current_user
+from app.core.auth import verify_user, create_access_token, update_token, get_current_user
 from app.models.auth import LoginRequest
 
 router = APIRouter()
@@ -23,5 +23,4 @@ async def login_for_access_token(login_request: LoginRequest):
 
 @router.get("/me")
 async def get_username(current_user: str = Depends(get_current_user)):
-    # Endpoint logic here. The code below this line will only execute if the token is valid.
     return {"user": current_user}

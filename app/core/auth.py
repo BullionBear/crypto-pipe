@@ -1,8 +1,6 @@
-import logging
 from datetime import datetime, timedelta, UTC
 from typing import Optional
 from jose import JWTError, jwt
-import pymongo
 from db import get_collection
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
