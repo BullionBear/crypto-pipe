@@ -6,27 +6,6 @@ from app.models.auth import LoginRequest
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-# Dummy database of users
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$rNYXNW5cFMjxisl6oQw75usH/.SR7gm3EDO2Vk.Qr8cJj0EecUJzS",
-        "disabled": False,
-    }
-}
-
-
-def authenticate_user(fake_db, username: str, password: str):
-    user = fake_db.get(username)
-    if not user:
-        return False
-    if not verify_password(password, user['hashed_password']):
-        return False
-    return user
 
 
 @router.post("/login")
@@ -44,3 +23,7 @@ async def login_for_access_token(login_request: LoginRequest):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+@router.get("/users/me")
+async def read_users_me(current_user: dict = Depends(get_current_user)):
+    return current_user
