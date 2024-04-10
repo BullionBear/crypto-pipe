@@ -9,11 +9,7 @@ class LoginRequest(BaseModel):
 
 class User(BaseModel):
     username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
+    password: str
+    token: Optional[str] = None
+    token_expire: Optional[int] = None
 
-
-# This is a schema for the token and the payload
-class TokenData(BaseModel):
-    username: Optional[str] = None

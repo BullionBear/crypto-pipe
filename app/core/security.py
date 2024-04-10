@@ -1,10 +1,12 @@
+import logging
 from datetime import datetime, timedelta, UTC
 from typing import Optional
 from jose import JWTError, jwt
+import pymongo
+from db import get_collection
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from app.models.auth import TokenData
 
 SECRET_KEY = "LBYZeHF9N0WQKEGuVJMXUfTmOqnDc83obI4wAh1l6iS7gtjC"
 ALGORITHM = "HS256"
@@ -19,7 +21,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.timestamp()})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -32,25 +34,20 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# Dummy database of users
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$rNYXNW5cFMjxisl6oQw75usH/.SR7gm3EDO2Vk.Qr8cJj0EecUJzS",
-        "disabled": False,
-    }
-}
 
-
-def authenticate_user(fake_db, username: str, password: str):
-    user = fake_db.get(username)
+async def verify_user(username: str, password: str) -> str:
+    user_collection = get_collection("user")
+    user = await user_collection.find_one({"username": username}, projection={"username": 1, "password": 1})
     if not user:
-        return {}
-    if not verify_password(password, user['hashed_password']):
-        return {}
-    return user
+        return ""
+    if not verify_password(password, user['password']):
+        return ""
+    return user["username"]
+
+
+async def update_token(username: str, token: str):
+    user_collection = get_collection("user")
+    await user_collection.update_one({"username": username}, {"$set": {"token": token}})
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -61,13 +58,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        user: str = payload.get("sub")
+        if not user:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        return user
     except JWTError:
         raise credentials_exception
-    user = authenticate_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
+

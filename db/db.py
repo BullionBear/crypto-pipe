@@ -16,6 +16,11 @@ def get_database():
     return db.client["pipe"]
 
 
+def get_collection(collection: str):
+    database = get_database()
+    return database.get_collection(collection)
+
+
 async def connect_to_mongo():
     db.client = AsyncIOMotorClient(MONGO_URL)  # Adjust the connection string as needed
 
@@ -27,7 +32,6 @@ async def close_mongo_connection():
 def create_start_app_handler(app: FastAPI) -> callable:
     async def start_app() -> None:
         await connect_to_mongo()
-        app.state._db = db.client
     return start_app
 
 
