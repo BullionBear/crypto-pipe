@@ -8,3 +8,6 @@ apscheduler
 motor
 python-multipart
 pymongo
+pandas
+loguru
+requests
