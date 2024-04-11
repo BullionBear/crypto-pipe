@@ -1,8 +1,10 @@
 from typing import Callable
+import time
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_current_user
 from app.api.schemas.scheduler import CronRequest
 from app.core.scheduler import verify_job_name, create_cron_job
+from app.db import get_collection
 from jobs import JOB_REGISTRY
 
 router = APIRouter()
@@ -26,8 +28,8 @@ async def create_execution(cron_request: CronRequest, job: Callable = Depends(ve
         missing_keys = job_keys - arg_keys
         raise HTTPException(status_code=400, detail=f"Missing Key {list(missing_keys)}")
     args = {key: cron_request.args[key] for key in job_keys}
-    await create_cron_job(cron_request.cron, job.__name__, **args)
-    return {"msg": "Success"}
+    job_id = await create_cron_job(current_user, cron_request.cron, job.__name__, **args)
+    return {"job_id": job_id}
 
 
 @router.get("/crons")

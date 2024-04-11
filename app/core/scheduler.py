@@ -1,11 +1,14 @@
+import time
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import HTTPException
 from apscheduler.jobstores.mongodb import MongoDBJobStore
-from db.db import MONGO_URL, DATABASE
+from app.db.db import MONGO_URL, DATABASE, get_collection
+from app.db.models import Job
 from jobs import JOB_REGISTRY
 
-COLLECTION = 'apscheduler'
-
+AP_COLLECTION = 'apscheduler'
+JOB_COLLECTION = 'job'
 
 async def verify_job_name(job_name: str):
     job = JOB_REGISTRY.get(job_name)
@@ -15,16 +18,29 @@ async def verify_job_name(job_name: str):
 
 
 # Create an instance of MongoDBJobStore
-jobstore = MongoDBJobStore(database=DATABASE, collection=COLLECTION, host=MONGO_URL)
+jobstore = MongoDBJobStore(database=DATABASE, collection=AP_COLLECTION, host=MONGO_URL)
 scheduler = BackgroundScheduler(jobstores={'default': jobstore})
 scheduler.start()
 
 
-async def create_cron_job(cron_expression: str, job_name: str, **kwargs):
+async def create_cron_job(user: str, cron_expression: str, job_name: str, **kwargs):
     job = JOB_REGISTRY.get(job_name)
-    crons = cron_expression_to_dict(cron_expression)
-    scheduler.add_job(job, 'cron', **crons, kwargs=kwargs)
-    return True
+    cron = cron_expression_to_dict(cron_expression)
+    schedule = scheduler.add_job(job, 'cron', **cron, kwargs=kwargs)
+    data = Job(
+        job_name=job_name,
+        created_by=user,
+        created_at=int(time.time()),
+        job_id=schedule.id,
+        cron=cron_expression,
+        args=kwargs
+    )
+
+
+    get_collection(JOB_COLLECTION).insert_one(
+        data.dict(by_alias=True)
+    )
+    return schedule.id
 
 
 def cron_expression_to_dict(cron_expression):
@@ -51,6 +67,4 @@ def cron_expression_to_dict(cron_expression):
     }
 
     return cron_dict
-
-
 

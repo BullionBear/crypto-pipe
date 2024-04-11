@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from db import create_start_app_handler, create_stop_app_handler
+from app.db import create_start_app_handler, create_stop_app_handler
 from app.api.routers import auth_router, scheduler_router
 
 
