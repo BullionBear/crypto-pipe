@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi import FastAPI
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+DATABASE = 'pipe'
 
 
 class DataBase:
@@ -13,7 +14,7 @@ db = DataBase()
 
 
 def get_database():
-    return db.client["pipe"]
+    return db.client[DATABASE]
 
 
 def get_collection(collection: str):
