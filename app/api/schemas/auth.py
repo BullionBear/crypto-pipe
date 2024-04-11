@@ -2,9 +2,6 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class User(BaseModel):
+class LoginRequest(BaseModel):
     username: str
     password: str
-    token: Optional[str] = None
-    token_expire: Optional[int] = None
-

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.auth import verify_user, create_access_token, update_token, get_current_user
-from app.models.auth import LoginRequest
+from app.api.schemas.auth import LoginRequest
 
 router = APIRouter()
 

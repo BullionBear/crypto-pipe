@@ -12,7 +12,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
+AUTH_COLLECTION = "auth"
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -34,7 +34,7 @@ def get_password_hash(password):
 
 
 async def verify_user(username: str, password: str) -> str:
-    user_collection = get_collection("user")
+    user_collection = get_collection(AUTH_COLLECTION)
     user = await user_collection.find_one({"username": username}, projection={"username": 1, "password": 1})
     if not user:
         return ""

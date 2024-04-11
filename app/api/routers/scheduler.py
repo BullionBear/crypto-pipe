@@ -1,7 +1,7 @@
 from typing import Callable
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_current_user
-from app.models.scheduler import CronRequest
+from app.api.schemas.scheduler import CronRequest
 from app.core.scheduler import verify_job_name, create_cron_job
 from jobs import JOB_REGISTRY
 
@@ -28,5 +28,10 @@ async def create_execution(cron_request: CronRequest, job: Callable = Depends(ve
     args = {key: cron_request.args[key] for key in job_keys}
     await create_cron_job(cron_request.cron, job.__name__, **args)
     return {"msg": "Success"}
+
+
+@router.get("/crons")
+async def list_crons():
+    pass
 
 
