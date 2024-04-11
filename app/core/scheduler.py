@@ -10,6 +10,7 @@ from jobs import JOB_REGISTRY
 AP_COLLECTION = 'apscheduler'
 JOB_COLLECTION = 'job'
 
+
 async def verify_job_name(job_name: str):
     job = JOB_REGISTRY.get(job_name)
     if job is None:
@@ -35,7 +36,6 @@ async def create_cron_job(user: str, cron_expression: str, job_name: str, **kwar
         cron=cron_expression,
         args=kwargs
     )
-
 
     get_collection(JOB_COLLECTION).insert_one(
         data.dict(by_alias=True)
@@ -67,4 +67,32 @@ def cron_expression_to_dict(cron_expression):
     }
 
     return cron_dict
+
+
+async def list_crons(user: str):
+    job_collection = get_collection(JOB_COLLECTION)
+    # Initialize an empty list to hold your documents
+    ids = []
+    # Async for loop to iterate over the cursor
+    async for document in job_collection.find({"created_by": user}):
+        ids.append(document["_id"])  # Or process the document as needed
+    return ids
+
+
+async def get_cron_by_id(user: str, job_id: str):
+    job_collection = get_collection(JOB_COLLECTION)
+    job = await job_collection.find_one({"_id": job_id})
+    if job is None or job["created_by"] != user:
+        raise HTTPException(status_code=404, detail="Job id not found")
+    return job
+
+
+async def delete_cron_by_id(job_id: str):
+    """
+    Delete cron by id should verify the id existence and job owner before deleting
+    """
+    job_collection = get_collection(JOB_COLLECTION)
+    await job_collection.delete_one({"_id": job_id})
+    scheduler.remove_job(job_id)
+    return
 

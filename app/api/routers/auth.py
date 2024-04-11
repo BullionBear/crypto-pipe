@@ -5,7 +5,7 @@ from app.api.schemas.auth import LoginRequest
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post("/login", tags=["auth"])
 async def login_for_access_token(login_request: LoginRequest):
     user = await verify_user(login_request.username, login_request.password)
     if not user:
@@ -21,6 +21,6 @@ async def login_for_access_token(login_request: LoginRequest):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/me")
+@router.get("/me", tags=["auth"])
 async def get_username(current_user: str = Depends(get_current_user)):
     return {"user": current_user}
