@@ -26,6 +26,7 @@ async def create_user(login_request: LoginRequest):
     await auth.create_user(login_request.username, login_request.password)
     return {"msg": "success"}
 
+
 @router.get("/me", tags=["auth"])
 async def get_username(current_user: str = Depends(auth.get_current_user)):
     return {"user": current_user}
