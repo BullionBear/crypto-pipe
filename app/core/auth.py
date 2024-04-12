@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, UTC
 from typing import Optional
 from jose import JWTError, jwt
 from app.db import get_collection
+from app.db.models import User
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -42,6 +43,16 @@ async def verify_user(username: str, password: str) -> str:
     if not verify_password(password, user['password']):
         return ""
     return user["username"]
+
+
+async def create_user(username: str, password: str):
+    user_collection = get_collection(AUTH_COLLECTION)
+    exist_user = await user_collection.find_one({"username": username}, projection={"_id": 1})
+    if exist_user:
+        raise KeyError(f"Username {username} already exist")
+    hashed_password = get_password_hash(password)
+    user = User(username=username, password=hashed_password)
+    await user_collection.insert_one(user.dict())
 
 
 async def update_token(username: str, token: str):
