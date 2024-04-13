@@ -14,3 +14,4 @@ requests
 croniter
 pybit
 python-binance
+psycopg2-binary
