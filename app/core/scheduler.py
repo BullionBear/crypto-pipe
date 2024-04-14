@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from apscheduler.jobstores.mongodb import MongoDBJobStore
 from app.db.db import MONGO_URL, DATABASE, get_collection
 from app.db.models import Job
-from jobs import JOB_REGISTRY
+from registry.jobs import JOB_REGISTRY
 
 AP_COLLECTION = 'apscheduler'
 JOB_COLLECTION = 'job'

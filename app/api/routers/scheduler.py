@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth import get_current_user
 from app.api.schemas.scheduler import CronRequest
 import app.core.scheduler as sc
-from jobs import JOB_REGISTRY
+from registry.jobs import JOB_REGISTRY
 
 router = APIRouter()
 
