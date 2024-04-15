@@ -15,3 +15,5 @@ croniter
 pybit
 python-binance
 psycopg2-binary
+jsonrpcserver
+jsonrpcclient
