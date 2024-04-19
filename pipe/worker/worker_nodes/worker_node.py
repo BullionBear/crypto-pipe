@@ -19,7 +19,6 @@ class WorkerNode:
         self.tasks = Queue()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         # self.running = True  # A flag to control the running of the loop in run()
-        self.executor.submit(self.listen)
 
     def listen(self):
         logger.info("Start Listening...")

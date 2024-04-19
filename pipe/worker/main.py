@@ -14,6 +14,7 @@ def main():
     # Now you can use args.port where you need the port number
     logger.info(f"Received port: {args.port}")
     worker = WorkerNode(args.port, args.n_workers)
+    worker.listen()
 
 
 if __name__ == "__main__":
