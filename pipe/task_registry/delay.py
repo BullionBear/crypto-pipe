@@ -6,4 +6,3 @@ def delay(second: float):
     logger.info(f"Sleep {second} seconds")
     time.sleep(second)
     return second
-
