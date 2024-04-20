@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class ConnectRequest(BaseModel):
+class WorkerConnectRequest(BaseModel):
     ip: str
     port: int
-    tls: bool
+

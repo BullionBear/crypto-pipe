@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
-from worker.api.schema.connect import ConnectRequest
+from .schema import WorkerConnectRequest
 from services import WebSocketClient
 
 router = APIRouter()
 
 
 @router.post("/conn", tags=["connectivity"])
-async def connect(request: ConnectRequest):
+async def connect(request: WorkerConnectRequest):
     # Building the URI based on the input
     protocol = "wss" if request.tls else "ws"
     uri = f"{protocol}://{request.ip}:{request.port}"
