@@ -16,3 +16,5 @@ pybit
 python-binance
 psycopg2-binary
 pyzmq
+pydantic-settings
+websockets
