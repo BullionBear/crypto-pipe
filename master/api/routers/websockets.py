@@ -13,9 +13,9 @@ async def websocket_endpoint(websocket: WebSocket, manager: WebSocketManager = D
     try:
         while True:
             message_str = await websocket.receive_text()
-            message = cmd.resolve_command(message_str)
+            message = cmd.Message.model_validate_json(message_str)
             command = message["cmd"]
-            logger.info(f"Receive {command} with {message["id"]}")
+            logger.info(f"Receive {command} with {message.id}")
             if command == cmd.WORKER_CONNECTION_ESTABLISH:
                 await on_connection_establish(message, websocket, manager)
             elif command == cmd.WORKER_CREATE_TASK_ACK:
@@ -28,12 +28,14 @@ async def websocket_endpoint(websocket: WebSocket, manager: WebSocketManager = D
     finally:
         del manager.active_connections["worker"]
 
+
 async def on_connection_establish(message, websocket, websocket_manager):
-    server_name = message["name"]
+    server_name = message.data["name"]
     websocket_manager.add_connection(server_name, websocket)
 
     response = cmd.make_command(cmd.MASTER_CONNECTION_ESTABLISHED_ACK, message["id"], dict())
     await websocket.send_text(response)
+
 
 async def on_ack(message, websocket):
     pass
