@@ -1,5 +1,9 @@
 import asyncio
 import websockets
+import loguru
+import json
+
+logger = loguru.logger
 
 
 class WebSocketClient:
@@ -22,16 +26,16 @@ class WebSocketClient:
             await self.on_error(e)
 
     async def on_message(self, message):
-        print(f"Received message: {message}")
+        logger.info(f"Received message: {message}")
 
     async def on_error(self, error):
-        print(f"Encountered error: {error}")
+        logger.info(f"Encountered error: {error}")
 
     async def on_close(self):
-        print("Connection closed")
+        logger.info("Connection closed")
 
     async def on_open(self, websocket):
-        print("Connection opened")
+        logger.info("Connection opened")
         await websocket.send("Hello, Server!")
 
 # Function to run the WebSocket client
