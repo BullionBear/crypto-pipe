@@ -1,1 +1,1 @@
-from .connect import WorkerConnectRequest
+from .connectivity import WorkerConnectRequest
