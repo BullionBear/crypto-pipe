@@ -3,6 +3,7 @@ from .schema import MasterConnectionRequest, CreateTaskRequest
 import loguru
 import httpx
 from api.services import get_websocket_manager, WebSocketManager
+import pipe.command as command
 
 logger = loguru.logger
 router = APIRouter()
@@ -35,7 +36,9 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
 @router.post("/create_task", tags=["worker"])
 async def create_task(request: CreateTaskRequest, manager: WebSocketManager = Depends(get_websocket_manager)):
     logger.info(f"{request=}")
-    await manager.active_connections["worker"].send_text(f"Message received: {request.task}")
+    data = request.dict()
+    msg = command.make_command(command.MASTER_CREATE_TASK, data)
+    await manager.active_connections["worker"].send_text(msg)
     return {}
 
 @router.get("/workers", tags=["worker"])
