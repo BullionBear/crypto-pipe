@@ -1,5 +1,3 @@
-import json
-import uuid
 from typing import Dict, Any
 from .model import Message
 
