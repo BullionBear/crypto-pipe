@@ -1,1 +1,1 @@
-from .worker import MasterConnectionRequest
+from .worker import MasterConnectionRequest, CreateTaskRequest
