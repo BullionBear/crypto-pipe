@@ -1,2 +1,2 @@
-from .worker import router as connectivity_router
+from .connectivity import router as connectivity_router
 
