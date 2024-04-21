@@ -3,10 +3,10 @@ import uuid
 from typing import Dict, Any
 
 
-def make_command(command_type: str, data: Dict[str, Any]):
+def make_command(command_type: str, id: str, data: Dict[str, Any]):
     message = {
         "cmd": command_type,
-        "id": uuid.uuid4().hex,
+        "id": id,
         "data": data
     }
     message_str = json.dumps(message, indent=4)
