@@ -3,7 +3,7 @@ import asyncio
 import websockets
 import loguru
 import uuid
-import pipe.command as cmd, Message
+import pipe.command as cmd
 
 
 logger = loguru.logger
@@ -18,7 +18,7 @@ class WebSocketClient:
             await self.on_open(websocket)
             await self.receive_messages(websocket)
 
-    async def receive_messages(self, websocket):
+    async def receive_messages(self, websocket: websockets.WebSocketClientProtocol):
         try:
             while True:
                 message = await websocket.recv()
@@ -28,7 +28,7 @@ class WebSocketClient:
         except Exception as e:
             await self.on_error(e)
 
-    async def on_message(self, message_str, websocket):
+    async def on_message(self, message_str: str, websocket: websockets.WebSocketClientProtocol):
         logger.info(f"Received message: {message_str}")
         message = cmd.resolve_command(message_str)
         command = message.cmd
@@ -38,12 +38,12 @@ class WebSocketClient:
         elif command == cmd.MASTER_CREATE_TASK:
             await self.on_create_task(message, websocket)
     
-    async def on_ack(self, message: Message):
+    async def on_ack(self, message: cmd.Message):
         pass
         
     
-    async def on_create_task(self, message: Message, websocket):
-        response = cmd.make_command(cmd.WORKER_CREATE_TASK_ACK, message.id, dict())
+    async def on_create_task(self, message: cmd.Message, websocket: websockets.WebSocketClientProtocol):
+        response = cmd.Message(cmd=cmd.WORKER_CREATE_TASK_ACK, id=message.id)
         await websocket.send(response)
         data = message.data
         task_name = data["task"]
