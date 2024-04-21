@@ -22,6 +22,7 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
         async with httpx.AsyncClient() as client:
             response = await client.post(f"http://{worker_ip}:{worker_port}/conn", json=data)
             response.raise_for_status()
+
             return {"status": "success", "data": response.json()}
     except httpx.RequestError as exc:
         logger.error(f"An error occurred while requesting {exc.request.url!r}.")
@@ -34,7 +35,7 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
 @router.post("/create_task", tags=["worker"])
 async def create_task(request: CreateTaskRequest, manager: WebSocketManager = Depends(get_websocket_manager)):
     logger.info(f"{request=}")
-    manager.send_round_robin_message(f"Send task message!")
+    await manager.active_connections["worker"].send_text(f"Message received: {request.task}")
     return {}
 
 @router.get("/workers", tags=["worker"])

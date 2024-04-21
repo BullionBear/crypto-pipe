@@ -1,24 +1,27 @@
-from typing import Set
+from starlette.websockets import WebSocketDisconnect
 from api.services import get_websocket_manager, WebSocketManager
 from fastapi import WebSocket, APIRouter, Depends
+import loguru
 
+logger = loguru.logger
 router = APIRouter()
 
 
 @router.websocket("")
 async def websocket_endpoint(websocket: WebSocket, manager: WebSocketManager = Depends(get_websocket_manager)):
-    await manager.connect(websocket)
+    await websocket.accept()
+    manager.active_connections["worker"] = websocket
     try:
         while True:
             data = await websocket.receive_text()
-            # Echo the received message back to the client
-            await manager.send_personal_message(f"Message received: {data}", websocket)
-    except Exception as e:
-        print('Error:', e)
+            await websocket.send_text(f"Message received: {data}")
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
     finally:
-        manager.disconnect(websocket)
+        del manager.active_connections["worker"]
+
 
 @router.get("/broadcast")
 async def broadcast_message(message: str, manager: WebSocketManager = Depends(get_websocket_manager)):
-    await manager.broadcast(message)
+    # await manager.broadcast(message)
     return {"message": "Message sent to all clients", "content": message}
