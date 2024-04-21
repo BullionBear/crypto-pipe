@@ -4,6 +4,7 @@ import loguru
 
 logger = loguru.logger
 
+
 class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = dict()
