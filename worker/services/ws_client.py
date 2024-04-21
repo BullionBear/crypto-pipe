@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import loguru
-import json
+import pipe.command as cmd
 
 logger = loguru.logger
 
@@ -25,8 +25,10 @@ class WebSocketClient:
         except Exception as e:
             await self.on_error(e)
 
-    async def on_message(self, message):
-        logger.info(f"Received message: {message}")
+    async def on_message(self, message_str):
+        logger.info(f"Received message: {message_str}")
+        message = cmd.resolve_command(message_str)
+        
 
     async def on_error(self, error):
         logger.info(f"Encountered error: {error}")
