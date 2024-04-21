@@ -42,12 +42,13 @@ class WebSocketClient:
         pass
         
     
-    async def on_create_task(self, message: Dict[str, Any], websocket):
-        response = cmd.make_command(cmd.WORKER_CREATE_TASK_ACK, message["id"], dict())
+    async def on_create_task(self, message: Message, websocket):
+        response = cmd.make_command(cmd.WORKER_CREATE_TASK_ACK, message.id, dict())
         await websocket.send(response)
-        task_name = message["task"]
-        args = message["args"]
-        kwargs = message["kwargs"]
+        data = message.data
+        task_name = data["task"]
+        args = data["args"]
+        kwargs = data["kwargs"]
         logger.info(f"Start running {task_name}({args}, {kwargs})")
         reply = cmd.make_command(cmd.WORKER_TASK_DONE, uuid.uuid4().hex, dict())
         await websocket.send(reply)
