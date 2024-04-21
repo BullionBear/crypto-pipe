@@ -3,7 +3,8 @@ import asyncio
 import websockets
 import loguru
 import uuid
-import pipe.command as cmd
+import pipe.command as cmd, Message
+
 
 logger = loguru.logger
 
@@ -30,14 +31,14 @@ class WebSocketClient:
     async def on_message(self, message_str, websocket):
         logger.info(f"Received message: {message_str}")
         message = cmd.resolve_command(message_str)
-        command = message["cmd"]
-        logger.info(f"Receive {command} with {message["id"]}")
+        command = message.cmd
+        logger.info(f"Receive {command} with {message.id}")
         if command == cmd.MASTER_CONNECTION_ESTABLISHED_ACK:
             await self.on_ack(message)
         elif command == cmd.MASTER_CREATE_TASK:
             await self.on_create_task(message, websocket)
     
-    async def on_ack(self, message: Dict[str, Any]):
+    async def on_ack(self, message: Message):
         pass
         
     
