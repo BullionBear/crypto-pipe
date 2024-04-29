@@ -33,24 +33,6 @@ class WebSocketManager:
         name, work = random.choice(list(self.active_connections.items()))
         logger.info(f"Send message to {name}")
         await work.send_text(message.model_dump_json())
-        
-
-
-    # async def send_personal_message(self, name: str, message: str):
-    #     websocket = self.active_connections[name]
-    #     await websocket.send_text(message)
-
-    # async def broadcast(self, message: str):
-    #     for connection in self.active_connections:
-    #         await connection.send_text(message)
-    # 
-    # async def send_message(self, message: str):
-    #     name = list(self.active_connections.keys())[0]
-    #     await self.send_personal_message(name, message)
-
-    # def all_workers(self):
-    #     return list(self.active_connections.keys())
-
 
 
 async def get_websocket_manager():
