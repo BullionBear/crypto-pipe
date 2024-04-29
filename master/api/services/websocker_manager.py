@@ -6,8 +6,13 @@ logger = loguru.logger
 
 
 class WebSocketManager:
-    def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = dict()
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.active_connections = {}
+        return cls._instance
 
     async def add_connection(self, name: str, websocket: WebSocket):
         self.active_connections[name] = websocket
@@ -35,7 +40,6 @@ class WebSocketManager:
     #     return list(self.active_connections.keys())
 
 
-manager = WebSocketManager()
 
 async def get_websocket_manager():
-    return manager
+    return WebSocketManager()

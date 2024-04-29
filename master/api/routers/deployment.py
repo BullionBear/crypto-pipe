@@ -9,11 +9,11 @@ import pipe.command as cmd
 logger = loguru.logger
 router = APIRouter()
 
-@router.post("/connect", tags=["worker"])
+@router.post("/connect", tags=["deployment"])
 async def connect_to(request: Request, conn_request: MasterConnectionRequest):
     worker_ip = conn_request.ip
     worker_port = conn_request.port
-    url = f"http://{worker_ip}:{worker_port}/conn"
+    url = f"http://{worker_ip}:{worker_port}/accept"
 
     data = {
         "ip": request.url.hostname,
@@ -22,7 +22,7 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
     logger.info(f"Send Master info {data} to {url}")
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(f"http://{worker_ip}:{worker_port}/conn", json=data)
+            response = await client.post(url, json=data)
             response.raise_for_status()
 
             return {"status": "success", "data": response.json()}
@@ -34,7 +34,7 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
         raise HTTPException(status_code=exc.response.status_code, detail="Error from worker.")
 
 
-@router.post("/create_task", tags=["worker"])
+@router.post("/create", tags=["deployment"])
 async def create_task(request: CreateTaskRequest, manager: WebSocketManager = Depends(get_websocket_manager)):
     logger.info(f"{request=}")
     data = request.model_dump()
