@@ -8,7 +8,7 @@ logger = loguru.logger
 router = APIRouter()
 
 
-@router.post("/conn", tags=["connectivity"])
+@router.post("/accept", tags=["network"])
 async def connect(request: WorkerConnectRequest):
     # Building the URI based on the input
     protocol = "ws"
