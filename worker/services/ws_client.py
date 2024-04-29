@@ -59,7 +59,7 @@ class WebSocketClient:
 
     async def on_open(self, websocket):
         message = cmd.Message(cmd=cmd.WORKER_CONNECTION_ESTABLISH, id=uuid.uuid4().hex, data={
-            "name": Settings.worker_name
+            "name": Settings().worker_name
         })
         logger.info("Connection opened")
         await websocket.send(message.model_dump_json())
