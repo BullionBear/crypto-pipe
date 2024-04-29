@@ -39,11 +39,11 @@ async def create_task(request: CreateTaskRequest, manager: WebSocketManager = De
     logger.info(f"{request=}")
     data = request.model_dump()
     msg = cmd.Message(cmd=cmd.MASTER_CREATE_TASK, id=uuid.uuid4().hex, data=data)
-    await manager.active_connections["worker"].send_text(msg.model_dump_json())
+    await manager.send_message(msg)
     return {}
 
-@router.get("/workers", tags=["worker"])
+@router.get("/workers", tags=["deployment"])
 async def get_workers(manager: WebSocketManager = Depends(get_websocket_manager)):
     return {
-        "n_connections": len(manager.active_connections)
+        'workers': manager.get_workers()
     }
