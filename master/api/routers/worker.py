@@ -2,8 +2,9 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from .schema import MasterConnectionRequest, CreateTaskRequest
 import loguru
 import httpx
+import uuid
 from api.services import get_websocket_manager, WebSocketManager
-import pipe.command as command
+import pipe.command as cmd
 
 logger = loguru.logger
 router = APIRouter()
@@ -36,9 +37,9 @@ async def connect_to(request: Request, conn_request: MasterConnectionRequest):
 @router.post("/create_task", tags=["worker"])
 async def create_task(request: CreateTaskRequest, manager: WebSocketManager = Depends(get_websocket_manager)):
     logger.info(f"{request=}")
-    data = request.dict()
-    msg = command.make_command(command.MASTER_CREATE_TASK, data)
-    await manager.active_connections["worker"].send_text(msg)
+    data = request.model_dump()
+    msg = cmd.Message(cmd=cmd.MASTER_CREATE_TASK, id=uuid.uuid4().hex, data=data)
+    await manager.active_connections["worker"].send_text(msg.model_dump_json())
     return {}
 
 @router.get("/workers", tags=["worker"])

@@ -10,11 +10,14 @@ class WebSocketManager:
         self.active_connections: Dict[str, WebSocket] = dict()
 
     async def add_connection(self, name: str, websocket: WebSocket):
-        await websocket.accept()
         self.active_connections[name] = websocket
 
-    # def disconnect(self, name):
-    #     del self.active_connections[name]
+    async def disconnect(self, name):
+        if name in self.active_connections:
+            websocket = self.active_connections[name]
+            await websocket.close()  # Properly close the connection
+            del self.active_connections[name]  # Then remove it from the dictionary
+            logger.info(f"Disconnected and removed connection: {name}")
 
     # async def send_personal_message(self, name: str, message: str):
     #     websocket = self.active_connections[name]
